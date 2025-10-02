@@ -72,6 +72,14 @@ const Chat = () => {
 
     const userMessage = inputMessage;
     setInputMessage("");
+
+    // Add user message immediately
+    const newMessage = {
+      message: userMessage,
+      response: null,
+      timestamp: new Date().toISOString(),
+    };
+    setMessages([...messages, newMessage]);
     setLoading(true);
 
     try {
@@ -83,8 +91,9 @@ const Chat = () => {
       );
 
       if (response.data.success) {
-        setMessages([
-          ...messages,
+        // Update the message with AI response
+        setMessages((prevMessages) => [
+          ...prevMessages.slice(0, -1),
           {
             message: userMessage,
             response: response.data.response,
@@ -94,6 +103,8 @@ const Chat = () => {
       }
     } catch (err) {
       console.error("Failed to send message:", err);
+      // Remove the message if failed
+      setMessages((prevMessages) => prevMessages.slice(0, -1));
     } finally {
       setLoading(false);
     }
@@ -153,11 +164,13 @@ const Chat = () => {
                 </div>
 
                 {/* AI Response */}
-                <div className="flex justify-start">
-                  <div className="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg max-w-md">
-                    {msg.response}
+                {msg.response && (
+                  <div className="flex justify-start">
+                    <div className="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg max-w-md">
+                      {msg.response}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             ))}
 
